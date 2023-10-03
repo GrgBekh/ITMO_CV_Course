@@ -2,6 +2,8 @@
 
 Детекция лесных пожаров в начальной стадии при помощи БПЛА
 
+![Alt Text](Assets/tl_5ep.gif)
+
 ## Датасеты
 
 - [Классификация](https://www.kaggle.com/datasets/chandranaveenkumar/forest-fires-classification)
