@@ -62,6 +62,13 @@
 
 **Идеальное решение** будет работать на БПЛА, но это при условии достижения необходимой производительности и точности на ограниченных ресурсах
 
+### Архитектура:
+
+![Alt Text](Assets/ArchTotal.PNG)
+![Alt Text](Assets/ArchFlow.PNG)
+![Alt Text](Assets/CompDiagUAV.PNG)
+![Alt Text](Assets/CompDiagClient.PNG)
+
 
 ### Стэк:
 - torch/torchvision
