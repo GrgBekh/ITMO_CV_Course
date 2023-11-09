@@ -69,6 +69,11 @@
 ![Alt Text](Assets/CompDiagUAV.PNG)
 ![Alt Text](Assets/CompDiagClient.PNG)
 
+### Демонстрация
+
+Демо веб-морды ![реализовано](streamlit_map.py) с использованием фреймворка Streamlit.
+
+![Alt Text](Assets/StreamlitMVP.png)
 
 ### Стэк:
 - torch/torchvision
