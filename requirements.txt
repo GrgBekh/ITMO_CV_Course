@@ -1,0 +1,7 @@
+supervision~=0.9.0
+opencv-python~=4.8.1.78
+numpy~=1.26.0
+pandas~=2.1.1
+matplotlib~=3.8.1
+tqdm~=4.66.1
+ultralytics~=8.0.81
