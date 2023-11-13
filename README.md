@@ -4,6 +4,20 @@
 
 ![Alt Text](Assets/tl_5ep.gif)
 
+## Содержание
+1. [Датасеты](#датасеты) 
+   - [Описание и требования к данным](#описание-и-требования-к-данным)
+   - [Инструкция для разметки](#инструкция-для-разметчиков-по-валидации-результатов-автоматической-разметки)
+   - [Оценка стоимости датасета](#расчет-стоимости-датасета)
+2. [Оценка затрат на железо](#стоимость-выхода-в-production)
+3. [БПЛА-платформа](#платформа)
+4. [Архитектура системы](#архитектура)
+5. [Демо (MVP)](#демонстрация)
+6. [Стэк](#стэк)
+7. [Литература](#литература)
+  
+---
+
 ## Датасеты
 
 - [Классификация](https://www.kaggle.com/datasets/chandranaveenkumar/forest-fires-classification)
@@ -67,10 +81,6 @@
 
 Итого: ~13020 руб.
 
-### Модели для бенча 
-1. [Smoke & Fire F1 score=.99.9% | Kaggle](https://www.kaggle.com/code/gpiosenka/smoke-fire-f1-score-99-9)
-2. [GitHub - OlafenwaMoses/FireNET](https://github.com/OlafenwaMoses/FireNET/tree/master) | [[arXiv 1905.11922] FireNet: IoT Model](https://arxiv.org/abs/1905.11922)
-
 ### Стоимость выхода в production
 Пока только первичные прикидки.
 
@@ -123,10 +133,11 @@
 ### Стэк:
 - torch/torchvision
 - roboflow/CVAT
-- OpenCV/CV2/skimage/что удобно
+- OpenCV/CV2
 - ultralytics
 - autodistill
 
+---
 
 ### Литература:
 1. [Wiki](https://en.wikipedia.org/wiki/Drones_in_wildfire_management)
@@ -137,7 +148,3 @@
 6. [MsFireD-Net: A lightweight and efficient convolutional neural network for flame and smoke segmentation](https://www.sciencedirect.com/science/article/pii/S2949855423000345?via%3Dihub) - Свежая статья, август 2023
 7. [Comets](http://www.comets-uavs.org/applications/fire.shtml) - проект по созданию системы мониторинга от Еврокомиссии (2003 год)
 8. **[Forest Fire Monitoring System Based on UAV Team, Remote Sensing, and Image Processing](https://www.researchgate.net/publication/328087679_Forest_Fire_Monitoring_System_Based_on_UAV_Team_Remote_Sensing_and_Image_Processing)**  - разработка очень похожей системы
-
----
-
-To be continued...
