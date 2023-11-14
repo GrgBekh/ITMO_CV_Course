@@ -12,7 +12,7 @@ st.title("🔥 CV Model Demonstration App")
 # Sample data: list of latitudes, longitudes, names, and video file paths
 locations = [
     {"name": "Location 1", "lat": 54.921094, "lon":
-        61.192561, "video_path": "runs\\detect\\predict\\tmpx6vfyuvc.mp4"},
+        61.192561, "video_path": "ITMO_CV_Course\\temp_videos\\tmpx6vfyuvc_processed.mp4\\tmpx6vfyuvc.mp4"},
     {"name": "Location 2", "lat": 54.981479, "lon":
         61.111365, "video_path": "ITMO_CV_Course\\temp_videos\\tmpx6vfyuvc.mp4"},
     # Add more locations and corresponding videos here
@@ -111,10 +111,12 @@ if uploaded_file is not None and not st.session_state['video_processed']:
         video_path = tfile.name
         tfile.close()
 
-        results = model.predict(source=video_path, conf=0.01, hide_conf=True, max_det=1, classes=0, save=True)
+        proc_filename = f"{video_path.split()[-1][:-4]}_processed"
+        results = model.predict(source=video_path, conf=0.01, hide_conf=True, max_det=1, classes=0,
+                                save=True, project="temp_videos_proc", name=proc_filename)
 
-        df.loc[0, "video_path"] = f"runs/detect/predict/{tfile.name.split('/')[-1]}"
-        st.session_state['uploaded_video_path'] = f"runs/detect/predict/{tfile.name.split('/')[-1]}"
+        df.loc[0, "video_path"] = f"temp_videos\\{proc_filename}\\{video_path.split()[-1]}"
+        st.session_state['uploaded_video_path'] = f"temp_videos\\{proc_filename}\\{video_path.split()[-1]}"
 
         st.session_state['video_processed'] = True
         st.success('Extracting successful!')
