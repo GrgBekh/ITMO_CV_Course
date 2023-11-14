@@ -4,10 +4,7 @@ from pathlib import Path
 import pydeck as pdk
 import tempfile
 
-import torch
 from ultralytics import YOLO
-from PIL import Image
-import cv2
 
 st.set_page_config(layout="wide")
 st.title("🔥 CV Model Demonstration App")
@@ -114,8 +111,9 @@ if uploaded_file is not None and not st.session_state['video_processed']:
         video_path = tfile.name
         tfile.close()
 
-        output = model.predict(source=video_path)
-        st.session_state['uploaded_video_path'] = output
+        results = model.predict(source=video_path, conf=0.01, hide_conf=True, max_det=1, classes=0, save=True)
+
+        st.session_state['uploaded_video_path'] = f"runs/detect/predict/{tfile.name.split('/')[-1]}"
 
         st.session_state['video_processed'] = True
         st.success('Extracting successful!')
