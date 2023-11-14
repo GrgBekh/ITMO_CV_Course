@@ -3,39 +3,29 @@ import pandas as pd
 from pathlib import Path
 import pydeck as pdk
 import tempfile
-
+import os
 from ultralytics import YOLO
+import moviepy.editor as moviepy
 
+# Page config and title
 st.set_page_config(layout="wide")
 st.title("🔥 CV Model Demonstration App")
 
-# Sample data: list of latitudes, longitudes, names, and video file paths
-locations = [
-    {"name": "Location 1", "lat": 54.921094, "lon":
-        61.192561, "video_path": ""},
-    {"name": "Location 2", "lat": 54.981479, "lon":
-        61.111365, "video_path": "ITMO_CV_Course\\temp_videos\\tmpx6vfyuvc.mp4"},
-    # Add more locations and corresponding videos here
-]
 
-# Convert the locations to a DataFrame
-df = pd.DataFrame(locations)
-
-# Sample data for the trajectory
-# This should be a list of lists, where each inner list represents a [longitude, latitude] pair
-trajectory_data = [
-    {"name": "Trajectory 1", "path": [[61.363556, 54.980254], [61.111365, 54.981479],[61.192561, 54.921094], [61.363556, 54.980254]]},
-    # Add more trajectories here
-]
-
-# Convert trajectory data to a DataFrame
-df_trajectory = pd.DataFrame(trajectory_data)
+# Create a temporary directory within the project directory
+temp_dir = Path("temp_videos")
+temp_dir.mkdir(parents=True, exist_ok=True)
 
 
-# model weights for inference
-model_path = "weights/35epochs.pt"
-model = YOLO(model_path)
+# Initialize session state variables if they don't exist
+if 'video_processed' not in st.session_state:
+    st.session_state['video_processed'] = False
 
+if 'locations' not in st.session_state:
+    st.session_state['locations'] = None
+
+if 'model' not in st.session_state:
+    st.session_state['model'] = None
 
 # Function to create a map with points and text labels
 def create_map(df_points, df_trajectory):
@@ -84,59 +74,75 @@ def create_map(df_points, df_trajectory):
     st.pydeck_chart(pdk.Deck(layers=[path_layer, scatterplot_layer, text_layer], initial_view_state=view_state,
                     map_style='mapbox://styles/mapbox/dark-v10'))
 
-
-# Initialize session state variables if they don't exist
-if 'uploaded_video_path' not in st.session_state:
-    st.session_state['uploaded_video_path'] = None
-
-if 'video_processed' not in st.session_state:
-    st.session_state['video_processed'] = False
-
-
-# Create a temporary directory within the project directory
-temp_dir = Path("temp_videos")
-temp_dir.mkdir(parents=True, exist_ok=True)
-
 # Upload file section
-uploaded_file = st.file_uploader("Upload a video...", type=[
-                                 "mp4", "mov", "avi", "asf", "m4v"])
+uploaded_file = st.file_uploader("Upload a video...", type=["mp4", "mov", "avi", "asf", "m4v"])
 
-# If a file is uploaded, save it to a temporary directory and display it
+# Prepare the model
+if not st.session_state['model']:
+    with st.spinner('Model preparation...'):
+        # model weights for inference
+        model_path = "weights/35epochs.pt"
+        model = YOLO(model_path)
+        st.session_state['model'] = model
+
+
+# Define locations variables
+if not st.session_state['locations']:
+    # Sample data for locations
+    locations = [
+        {"name": "Location 1", "lat": 54.921094, "lon": 61.192561, "video_path": ""},
+        {"name": "Location 2", "lat": 54.981479, "lon": 61.111365, "video_path": "ITMO_CV_Course\\temp_videos\\tmpx6vfyuvc.mp4"},
+    ]
+    df = pd.DataFrame(locations)
+
+    # Sample data for the trajectory
+    trajectory = [
+        {"name": "Trajectory 1", "path": [[61.363556, 54.980254], [61.111365, 54.981479],[61.192561, 54.921094], [61.363556, 54.980254]]},
+    ]
+    df_trajectory = pd.DataFrame(trajectory)
+
+    # Save the session
+    st.session_state['locations'] = (df, df_trajectory)
+
+
+# Upload the file and send it to the model
 if uploaded_file is not None and not st.session_state['video_processed']:
     with st.spinner('Extracting...'):
-        tfile = tempfile.NamedTemporaryFile(
-            delete=False, dir=temp_dir, suffix='.mp4')
+        # Upload a file
+        tfile = tempfile.NamedTemporaryFile(delete=False, dir=temp_dir, suffix='.mp4')
         tfile.write(uploaded_file.read())
-        # st.session_state['uploaded_video_path'] = tfile.name
         video_path = tfile.name
         tfile.close()
 
-        proc_filename = f"{video_path.split()[-1][:-4]}_processed"
-        results = model.predict(source=video_path, conf=0.01, hide_conf=True, max_det=1, classes=0,
-                                save=True, project="temp_videos", name=proc_filename)
+        # Process the file
+        proc_filename = f"{os.path.split(video_path)[-1][:-4]}_processed"
+        results = st.session_state['model'].predict(source=video_path, conf=0.01, hide_conf=True, max_det=1, classes=0, save=True, project="temp_videos", name=proc_filename)
+        clear_filename = os.path.split(video_path)[-1]
 
-        output_path = f"temp_videos\\{proc_filename}\\{video_path.split()[-1]}"
+        output_path = f"temp_videos\\{proc_filename}\\{clear_filename[:-4]}.avi"
 
-        df["video_path"] = output_path
-        locations[0]['video_path'] = output_path
-        locations[1]['video_path'] = output_path
-        st.session_state['uploaded_video_path'] = output_path
+        # Convert to mp4 format so streamlit will show the vid
+        clip = moviepy.VideoFileClip(output_path)
+        clip.write_videofile(output_path.replace('avi', 'mp4'))
 
+        # Set the output filepath to show (dataframe locations used)
+        st.session_state['locations'][0]["video_path"] = output_path.replace('avi', 'mp4')
+        st.success('Sucessfully extracted!')
+
+        # Save the session
         st.session_state['video_processed'] = True
-        st.success('Extracting successful!')
+
 
 # Check if the video has been processed
 if st.session_state['video_processed']:
-
     col1, col2 = st.columns([1, 1])
-
     with col1:
         st.header("Locations")
-        create_map(df, df_trajectory)
+        create_map(st.session_state['locations'][0], st.session_state['locations'][1])
 
     with col2:
         st.header("Video")
         # Display buttons for each location and play the corresponding video when clicked
-        for location in locations:
-            if st.button(f"Play video from {location['name']}"):
-                st.video(location['video_path'])
+        for index, row in st.session_state['locations'][0].iterrows():
+            if st.button(f"Play video from {row['name']}"):
+                st.video(row['video_path'])
