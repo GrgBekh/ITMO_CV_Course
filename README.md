@@ -135,7 +135,7 @@
 
 Демо веб-приложения [реализовано](streamlit_map.py) с использованием фреймворка Streamlit.
 
-![Alt Text](Assets/StreamlitMVP.png)
+![Alt Text](Assets/mvp_preview.png)
 
 ### Стэк:
 - torch/torchvision
