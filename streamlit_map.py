@@ -5,7 +5,7 @@ import pydeck as pdk
 import tempfile
 
 import torch
-from torchvision import transforms
+from ultralytics import YOLO
 from PIL import Image
 import cv2
 
@@ -35,25 +35,9 @@ trajectory_data = [
 df_trajectory = pd.DataFrame(trajectory_data)
 
 
-def load_model(model_path):
-    checkpoint = torch.load(model_path)
-    model = checkpoint['model']
-    model = model.float()  # Convert to full precision for inference on CPU
-    model.eval()
-    return model
-
-
 # model weights for inference
 model_path = "weights/35epochs.pt"  # Replace with the path to your model
-model = load_model(model_path)
-
-
-# Draws bounding boxes on a frame
-def draw_boxes(frame, boxes, color=(0, 255, 0), thickness=2):
-    for box in boxes:
-        x, y, w, h = box
-        cv2.rectangle(frame, (x, y), (x + w, y + h), color, thickness)
-    return frame
+model = YOLO(model_path)
 
 
 def process_frame(frame):
@@ -72,7 +56,7 @@ def process_frame(frame):
 
     # Perform inference
     with torch.no_grad():
-        output = model(image_tensor)
+        detections = model.predict(image)
 
     processed_frame = draw_boxes(frame, output)
     return processed_frame
