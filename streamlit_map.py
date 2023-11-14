@@ -36,68 +36,8 @@ df_trajectory = pd.DataFrame(trajectory_data)
 
 
 # model weights for inference
-model_path = "weights/35epochs.pt"  # Replace with the path to your model
+model_path = "weights/35epochs.pt"
 model = YOLO(model_path)
-
-
-def process_frame(frame):
-    # Preprocess frame if necessary
-    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    image = Image.fromarray(frame_rgb)
-    # Perform inference
-
-    # Define the transformation: convert the PIL image to a PyTorch tensor
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-    ])
-
-    # Apply the transformation to the image
-    image_tensor = transform(image).unsqueeze(0)  # Add batch dimension
-
-    # Perform inference
-    with torch.no_grad():
-        detections = model.predict(image)
-
-    processed_frame = draw_boxes(frame, output)
-    return processed_frame
-
-
-# Compiles a list of frames into a video file
-def compile_video(frames, output_path, frame_rate=30.0, frame_size=(1920, 1080), codec='mp4v'):
-    fourcc = cv2.VideoWriter_fourcc(*codec)
-    writer = cv2.VideoWriter(output_path, fourcc, frame_rate, frame_size)
-
-    for frame in frames:
-        writer.write(frame)
-
-    writer.release()
-
-
-def process_video(input_path):
-    video = cv2.VideoCapture(input_path)
-    processed_frames = []
-
-    # Determine frame properties
-    frame_width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
-    frame_height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    frame_rate = video.get(cv2.CAP_PROP_FPS)
-
-    processed_frames = []
-    while True:
-        ret, frame = video.read()
-        if not ret:
-            break
-        processed_frame = process_frame(frame)
-        processed_frames.append(processed_frame)
-
-    # Compile processed_frames back into a video
-    # Path for the output video
-    output_video_path = f"{input_path}_processed.mp4"
-
-    # Compile the frames into a video
-    compile_video(processed_frames, output_video_path, frame_rate, (frame_width, frame_height))
-
-    return output_video_path
 
 
 # Function to create a map with points and text labels
@@ -173,8 +113,8 @@ if uploaded_file is not None and not st.session_state['video_processed']:
         # st.session_state['uploaded_video_path'] = tfile.name
         video_path = tfile.name
         tfile.close()
-        
-        output = process_video(video_path)
+
+        output = model.predict(source=video_path)
         st.session_state['uploaded_video_path'] = output
 
         st.session_state['video_processed'] = True
