@@ -113,7 +113,7 @@ if uploaded_file is not None and not st.session_state['video_processed']:
 
         proc_filename = f"{video_path.split()[-1][:-4]}_processed"
         results = model.predict(source=video_path, conf=0.01, hide_conf=True, max_det=1, classes=0,
-                                save=True, project="temp_videos_proc", name=proc_filename)
+                                save=True, project="temp_videos", name=proc_filename)
 
         output_path = f"temp_videos\\{proc_filename}\\{video_path.split()[-1]}"
 
